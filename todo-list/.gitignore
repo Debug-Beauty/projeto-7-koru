@@ -1,0 +1,30 @@
+# --- deps ---
+node_modules/
+
+# --- build / vite cache ---
+dist/
+dist-ssr/
+.vite/
+
+# --- caches / coverage ---
+.cache/
+coverage/
+*.tsbuildinfo
+
+# --- logs ---
+npm-debug.log*
+yarn-debug.log*
+pnpm-debug.log*
+*.log
+
+# --- env ---
+.env
+.env.*
+!.env.example
+
+# --- editor / SO ---
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+*.swp
