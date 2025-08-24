@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useReducer } from "react";
+import { useEffect, useMemo, useReducer,  useState  } from "react";
 import { useLocalStorage } from "./hooks/useLocalStorage";
 
 import TodoInput from "./components/TodoInput";
@@ -8,6 +8,7 @@ import Stats from "./components/Stats";
 import EmptyState from "./components/EmptyState";
 
 import type { Todo } from "./components/TodoItem";
+import DeleteConfirmationModal from "./components/DeleteConfirmationModal";
 
 type SortBy = "createdAt-desc" | "dueAt-asc" | "priority-desc";
 
@@ -90,6 +91,24 @@ export default function App() {
   );
   const [state, dispatch] = useReducer(reducer, persisted ?? initial);
 
+  const [modalState, setModalState] = useState({ isOpen: false, taskId: "" });
+
+  // Funções para controlar o modal
+  function handleOpenDeleteModal(id: string) {
+    setModalState({ isOpen: true, taskId: id });
+  }
+
+  function handleCloseDeleteModal() {
+    setModalState({ isOpen: false, taskId: "" });
+  }
+
+  function handleConfirmDelete() {
+    if (modalState.taskId) {
+      dispatch({ type: "remove", id: modalState.taskId });
+    }
+    handleCloseDeleteModal();
+  }
+
   // salva no localStorage sempre que o estado mudar
   useEffect(() => {
     setPersisted(state);
@@ -127,9 +146,17 @@ export default function App() {
   }, [state.todos, state.filter, state.search, state.sortBy]);
 
   return (
-    <div className="min-h-screen text-zinc-100 bg-gradient-to-br from-sky-950 via-indigo-950 to-slate-950">
+     <div className="min-h-screen flex items-center justify-center text-zinc-100 bg-gradient-to-br from-sky-950 via-indigo-950 to-slate-950">
+      
+      <DeleteConfirmationModal
+        isOpen={modalState.isOpen}
+        onCancel={handleCloseDeleteModal}
+        onConfirm={handleConfirmDelete}
+      />
+
       <div className="mx-auto max-w-3xl px-4 py-10">
         {/* Título + stats */}
+        
         <header className="mb-6 flex items-center justify-between gap-4">
           <h1
             className="text-3xl md:text-4xl font-extrabold tracking-tight drop-shadow
@@ -165,7 +192,7 @@ export default function App() {
           <TodoList
             todos={visibleTodos}
             onToggle={(id) => dispatch({ type: "toggle", id })}
-            onRemove={(id) => dispatch({ type: "remove", id })}
+            onRemove={handleOpenDeleteModal} 
             onEdit={(id, patch) =>
               dispatch({ type: "edit", payload: { id, patch } })
             }
